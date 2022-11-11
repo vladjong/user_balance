@@ -10,13 +10,13 @@ import (
 )
 
 func main() {
-	logrus.Info("Config initializing")
+	logrus.Info("config initializing")
 	cfg := config.GetConfig()
-	logrus.Info("Env variables initializing")
+	logrus.Info("env variables initializing")
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("error loading env variables: %s", err.Error())
 	}
-	logrus.Info("Running service")
+	logrus.Info("running service")
 	service, err := service.NewService(cfg)
 	if err != nil {
 		logrus.Fatal(err)
