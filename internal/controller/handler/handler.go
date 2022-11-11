@@ -27,8 +27,8 @@ func (h *handler) NewRouter() *gin.Engine {
 		// api.GET("history/:id/:date")
 		// api.GET("report/:date")
 		api.POST("/:id/:val", h.PostCustomerBalance)
-		// api.POST("/reserv/:id/:id_ser/:id_ord/:val")
-		// api.POST("/accept/:id/:id_ser/:id_ord/:val")
+		api.POST("/reserv/:id/:id_ser/:id_ord/:val", h.PostReserveCustomerBalance)
+		api.POST("/accept/:id/:id_ser/:id_ord/:val", h.PostDeReservingBalance)
 
 	}
 	return router
