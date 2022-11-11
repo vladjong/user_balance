@@ -23,12 +23,12 @@ func (h *handler) NewRouter() *gin.Engine {
 
 	api := router.Group("/api")
 	{
-		api.GET(":id")
-		api.GET("history/:id/:date")
-		api.GET("report/:date")
-		api.POST("/:id/:val")
-		api.POST("/reserv/:id/:id_ser/:id_ord/:val")
-		api.POST("/accept/:id/:id_ser/:id_ord/:val")
+		api.GET("/:id", h.GetCustomerBalance)
+		// api.GET("history/:id/:date")
+		// api.GET("report/:date")
+		api.POST("/:id/:val", h.PostCustomerBalance)
+		// api.POST("/reserv/:id/:id_ser/:id_ord/:val")
+		// api.POST("/accept/:id/:id_ser/:id_ord/:val")
 
 	}
 	return router
