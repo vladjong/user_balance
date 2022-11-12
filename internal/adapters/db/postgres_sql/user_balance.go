@@ -127,6 +127,9 @@ func (d *userBalanceStorage) PostDeReservingBalance(transaction entities.Transac
 	if err := d.db.Select(&id, searchTransactionId, transaction.CustomeId, transaction.ServiceID, transaction.OrderID, transaction.Cost); err != nil {
 		return err
 	}
+	if len(id) == 0 {
+		return errors.New("error: this id don't exist")
+	}
 	history.TransactionId = id[0]
 	deleteTransactionQuery := fmt.Sprintf(`DELETE FROM %s WHERE transaction_id = $1`, ExpectedTransaction)
 	if _, err := tx.Exec(deleteTransactionQuery, history.TransactionId); err != nil {
@@ -169,11 +172,12 @@ func (d *userBalanceStorage) GetHistoryReport(date time.Time) (report []entities
 }
 
 func (d *userBalanceStorage) GetCustomerReport(id int, date time.Time) (report []entities.CustomerReport, err error) {
-	query := fmt.Sprintf(`SELECT ROW_NUMBER() OVER(ORDER BY date) AS id, service_name, order_name, sum, date
+	query := fmt.Sprintf(`SELECT ROW_NUMBER() OVER(ORDER BY date DESC, sum DESC) AS id, service_name, order_name, sum, date
 							FROM %s
 							WHERE $1 <= date
 							AND $1::timestamp + INTERVAL '1' MONTH > date
-							AND customer_id = $2`, CustomerReportView)
+							AND customer_id = $2
+							ORDER BY date DESC, sum DESC`, CustomerReportView)
 	if err := d.db.Select(&report, query, date, id); err != nil {
 		return report, err
 	}
