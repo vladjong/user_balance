@@ -3,6 +3,7 @@ package postgressql
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/vladjong/user_balance/internal/entities"
@@ -14,6 +15,8 @@ const (
 	AccountsTable       = "accounts"
 	HistoryTable        = "history"
 	ExpectedTransaction = "expected_transactions"
+	ReportView          = "history_report"
+	CustomerReportView  = "customer_report"
 )
 
 type userBalanceStorage struct {
@@ -26,12 +29,33 @@ func New(db *sqlx.DB) *userBalanceStorage {
 	}
 }
 
-func (d *userBalanceStorage) PostCustomerBalance(customer entities.Customer) error {
+func (d *userBalanceStorage) PostCustomerBalance(customer entities.Customer, transaction entities.Transaction) error {
+	tx, err := d.db.Begin()
+	if err != nil {
+		return err
+	}
 	query := fmt.Sprintf(`INSERT INTO %s (id, balance)
 							VALUES ($1, $2) ON CONFLICT (id)
 							DO UPDATE SET (id, balance) = (EXCLUDED.id, EXCLUDED.balance + customers.balance)`, CustomersTable)
-	_, err := d.db.Exec(query, customer.Id, customer.Balance)
-	return err
+	if _, err := tx.Exec(query, customer.Id, customer.Balance); err != nil {
+		tx.Rollback()
+		return err
+	}
+	var id int
+	transactionQuery := fmt.Sprintf(`INSERT INTO %s (customer_id, service_id, order_id, cost, transaction_datetime)
+										VALUES ($1, $2, $3, $4, $5) RETURNING id`, TransactionTable)
+	row := tx.QueryRow(transactionQuery, transaction.CustomeId, transaction.ServiceID, transaction.OrderID, transaction.Cost, transaction.TransactionDatiTime)
+	if err := row.Scan(&id); err != nil {
+		tx.Rollback()
+		return err
+	}
+	historyQuery := fmt.Sprintf(`INSERT INTO %s (transaction_id, accounting_datetime, status_transaction)
+									VALUES ($1, $2, $3)`, HistoryTable)
+	if _, err := tx.Exec(historyQuery, id, transaction.TransactionDatiTime, true); err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }
 
 func (d *userBalanceStorage) GetCustomerBalance(id int) (customer entities.Customer, err error) {
@@ -128,4 +152,33 @@ func (d *userBalanceStorage) PostDeReservingBalance(transaction entities.Transac
 		}
 	}
 	return tx.Commit()
+}
+
+func (d *userBalanceStorage) GetHistoryReport(date time.Time) (report []entities.Report, err error) {
+	query := fmt.Sprintf(`SELECT ROW_NUMBER() OVER(ORDER BY name) AS id, name, SUM(cost) AS all_sum
+							FROM %s
+							WHERE $1 <= accounting_datetime AND $1::timestamp + INTERVAL '1' MONTH > accounting_datetime
+							GROUP BY name`, ReportView)
+	if err := d.db.Select(&report, query, date); err != nil {
+		return report, err
+	}
+	if len(report) == 0 {
+		return report, errors.New("error: history report empty")
+	}
+	return report, nil
+}
+
+func (d *userBalanceStorage) GetCustomerReport(id int, date time.Time) (report []entities.CustomerReport, err error) {
+	query := fmt.Sprintf(`SELECT ROW_NUMBER() OVER(ORDER BY date) AS id, service_name, order_name, sum, date
+							FROM %s
+							WHERE $1 <= date
+							AND $1::timestamp + INTERVAL '1' MONTH > date
+							AND customer_id = $2`, CustomerReportView)
+	if err := d.db.Select(&report, query, date, id); err != nil {
+		return report, err
+	}
+	if len(report) == 0 {
+		return report, errors.New("error: customer history report empty")
+	}
+	return report, nil
 }

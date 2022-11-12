@@ -12,6 +12,7 @@ import (
 	postgressql "github.com/vladjong/user_balance/internal/adapters/db/postgres_sql"
 	"github.com/vladjong/user_balance/internal/controller/handler"
 	"github.com/vladjong/user_balance/internal/usecase"
+	"github.com/vladjong/user_balance/pkg/fileworker"
 	"github.com/vladjong/user_balance/pkg/postgres"
 	"github.com/vladjong/user_balance/pkg/server"
 )
@@ -49,8 +50,9 @@ func (s *Service) Run() error {
 func (s *Service) startHTTP() {
 	logrus.Info("HTTP Server initializing")
 	server := new(server.Server)
+	fileworker := fileworker.New()
 	userBalancePostgres := postgressql.New(s.postgresClient)
-	userBalanceUseCase := usecase.New(userBalancePostgres)
+	userBalanceUseCase := usecase.New(userBalancePostgres, fileworker)
 	handlers := handler.New(userBalanceUseCase)
 	go func() {
 		if err := server.Run(s.cfg.Listen.Port, handlers.NewRouter()); err != nil {
