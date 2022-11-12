@@ -10,6 +10,12 @@ import (
 	"github.com/vladjong/user_balance/pkg/fileworker"
 )
 
+const (
+	dateFormat       = "2006-01"
+	serviceBalanceId = 4
+	orderBalanceId   = 4
+)
+
 type userBalanseUseCase struct {
 	storage    db.UserBalanse
 	fileworker fileworker.FileWorker
@@ -36,8 +42,8 @@ func (u *userBalanseUseCase) PostCustomerBalance(id int, value decimal.Decimal) 
 	}
 	transaction := entities.Transaction{
 		CustomeId:           id,
-		ServiceID:           4,
-		OrderID:             4,
+		ServiceID:           serviceBalanceId,
+		OrderID:             orderBalanceId,
 		Cost:                value,
 		TransactionDatiTime: time.Now(),
 	}
@@ -82,7 +88,7 @@ func (u *userBalanseUseCase) GetHistoryReport(date time.Time) (string, error) {
 		return "", nil
 	}
 	headers := []string{"id", "name", "all_sum"}
-	dateStr := date.Format("2006-01")
+	dateStr := date.Format(dateFormat)
 	return u.fileworker.Record(report, headers, dateStr)
 }
 

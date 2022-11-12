@@ -9,6 +9,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const (
+	dateFormat = "2006-01"
+)
+
 func (h *handler) GetCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -138,8 +142,7 @@ func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
 }
 
 func (h *handler) GetHistoryReport(c *gin.Context) {
-	format := "2006-01"
-	date, err := time.Parse(format, c.Param("date"))
+	date, err := time.Parse(dateFormat, c.Param("date"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -153,8 +156,7 @@ func (h *handler) GetHistoryReport(c *gin.Context) {
 }
 
 func (h *handler) GetCustomerReport(c *gin.Context) {
-	format := "2006-01"
-	date, err := time.Parse(format, c.Param("date"))
+	date, err := time.Parse(dateFormat, c.Param("date"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
