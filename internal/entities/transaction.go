@@ -7,6 +7,7 @@ import (
 )
 
 type Transaction struct {
+	Id                  int             `json:"id" db:"id"`
 	CustomeId           int             `json:"customer_id" db:"customer_id"`
 	ServiceID           int             `json:"service_id" db:"service_id"`
 	OrderID             int             `json:"order_id" db:"order_id"`

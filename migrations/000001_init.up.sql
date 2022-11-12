@@ -11,11 +11,17 @@ CREATE TABLE accounts
     balance numeric(15, 2) NOT NULL
 );
 
+CREATE TABLE services
+(
+    id serial PRIMARY KEY,
+    name varchar(255) NOT NULL
+);
+
 CREATE TABLE transactions
 (
     id serial PRIMARY KEY,
     customer_id bigint REFERENCES customers (id) NOT NULL,
-    service_id bigint NOT NULL,
+    service_id bigint REFERENCES services (id) NOT NULL,
     order_id bigint NOT NULL,
     cost numeric(15, 2) NOT NULL,
     transaction_datetime timestamp NOT NULL
@@ -27,4 +33,10 @@ CREATE TABLE history
     transaction_id bigint REFERENCES transactions(id) NOT NULL,
     accounting_datetime timestamp NOT NULL,
     status_transaction boolean NOT NULL
+);
+
+CREATE TABLE expected_transactions
+(
+    id serial PRIMARY KEY,
+    transaction_id bigint REFERENCES transactions(id) NOT NULL
 );

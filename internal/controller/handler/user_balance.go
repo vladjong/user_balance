@@ -74,7 +74,7 @@ func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 	})
 }
 
-func (h *handler) PostDeReservingBalance(c *gin.Context) {
+func (h *handler) PostDeReservingBalanceAccept(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
@@ -96,6 +96,37 @@ func (h *handler) PostDeReservingBalance(c *gin.Context) {
 		return
 	}
 	err = h.userBalance.PostDeReservingBalance(customerId, serviceId, orderId, value, true)
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"Status": "ok",
+	})
+}
+
+func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
+	customerId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
+		return
+	}
+	serviceId, err := strconv.Atoi(c.Param("id_ser"))
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, "invalid service id param")
+		return
+	}
+	orderId, err := strconv.Atoi(c.Param("id_ord"))
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, "invalid store id param")
+		return
+	}
+	value, err := decimal.NewFromString(c.Param("val"))
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, "invalid value param")
+		return
+	}
+	err = h.userBalance.PostDeReservingBalance(customerId, serviceId, orderId, value, false)
 	if err != nil {
 		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

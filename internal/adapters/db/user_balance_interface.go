@@ -7,7 +7,6 @@ import (
 type UserBalanse interface {
 	GetCustomerBalance(id int) (customer entities.Customer, err error)
 	PostCustomerBalance(customer entities.Customer) error
-	PostReserveBalance(transaction entities.Transaction, customer entities.Customer, account entities.Acount) error
-	PostDeReservingBalance(customer entities.Customer, account entities.Acount, history entities.History) error
-	GetTransactionId(transaction entities.Transaction) (int, error)
+	PostReserveBalance(transaction entities.Transaction) error
+	PostDeReservingBalance(transaction entities.Transaction, history entities.History) error
 }

@@ -38,18 +38,6 @@ func (u *userBalanseUseCase) PostReserveBalance(customerId, serviceId, orderId i
 	if ok := checkValue(value); !ok {
 		return errors.New("error: value is negative")
 	}
-	customer, err := u.storage.GetCustomerBalance(customerId)
-	if err != nil {
-		return err
-	}
-	if customer.Balance.LessThan(value) {
-		return errors.New("error: customer balance less than transaction cost")
-	}
-	customer.Balance = customer.Balance.Sub(value)
-	account := entities.Acount{
-		CustomerId: customerId,
-		Balance:    value,
-	}
 	transaction := entities.Transaction{
 		CustomeId:           customerId,
 		ServiceID:           serviceId,
@@ -57,39 +45,25 @@ func (u *userBalanseUseCase) PostReserveBalance(customerId, serviceId, orderId i
 		Cost:                value,
 		TransactionDatiTime: time.Now(),
 	}
-	return u.storage.PostReserveBalance(transaction, customer, account)
+	return u.storage.PostReserveBalance(transaction)
 }
 
 func (u *userBalanseUseCase) PostDeReservingBalance(customerId, serviceId, orderId int, value decimal.Decimal, status bool) error {
 	if ok := checkValue(value); !ok {
 		return errors.New("error: value is negative")
 	}
-	customer, err := u.storage.GetCustomerBalance(customerId)
-	if err != nil {
-		return err
-	}
-	if !status {
-		customer.Balance = customer.Balance.Add(value)
-	}
-	account := entities.Acount{
-		CustomerId: customerId,
-		Balance:    value,
-	}
-	id, err := u.storage.GetTransactionId(entities.Transaction{
+	transaction := entities.Transaction{
 		CustomeId: customerId,
 		ServiceID: serviceId,
 		OrderID:   orderId,
 		Cost:      value,
-	})
-	if err != nil {
-		return err
 	}
 	history := entities.History{
-		TransactionId:      id,
-		AccountingDatetime: time.Now(),
+		TransactionId:      customerId,
 		StatusTransaction:  status,
+		AccountingDatetime: time.Now(),
 	}
-	return u.storage.PostDeReservingBalance(customer, account, history)
+	return u.storage.PostDeReservingBalance(transaction, history)
 }
 
 func checkValue(value decimal.Decimal) bool {

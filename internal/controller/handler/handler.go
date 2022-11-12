@@ -28,7 +28,8 @@ func (h *handler) NewRouter() *gin.Engine {
 		// api.GET("report/:date")
 		api.POST("/:id/:val", h.PostCustomerBalance)
 		api.POST("/reserv/:id/:id_ser/:id_ord/:val", h.PostReserveCustomerBalance)
-		api.POST("/accept/:id/:id_ser/:id_ord/:val", h.PostDeReservingBalance)
+		api.POST("/accept/:id/:id_ser/:id_ord/:val", h.PostDeReservingBalanceAccept)
+		api.POST("/reject/:id/:id_ser/:id_ord/:val", h.PostDeReservingBalanceReject)
 
 	}
 	return router
