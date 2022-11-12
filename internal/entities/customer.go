@@ -17,9 +17,10 @@ type Acount struct {
 }
 
 type CustomerReport struct {
-	Id          int             `json:"id" db:"id"`
-	ServiceName string          `json:"service_name" db:"service_name"`
-	OrderName   string          `json:"order_name" db:"order_name"`
-	Sum         decimal.Decimal `json:"sum" db:"sum"`
-	Date        time.Time       `json:"date" db:"date"`
+	Id                int             `json:"id" db:"id"`
+	ServiceName       string          `json:"service_name" db:"service_name"`
+	OrderName         string          `json:"order_name" db:"order_name"`
+	Sum               decimal.Decimal `json:"sum" db:"sum"`
+	StatusTransaction bool            `json:"status_transaction" db:"status_transaction"`
+	Date              time.Time       `json:"date" db:"date"`
 }

@@ -51,10 +51,11 @@ CREATE VIEW history_report AS
 SELECT h.id, s.name, t.cost, h.accounting_datetime
 FROM history AS h
     JOIN transactions t ON t.id = h.transaction_id
-    JOIN services s ON s.id = t.service_id;
+    JOIN services s ON s.id = t.service_id
+WHERE h.status_transaction = true;
 
 CREATE VIEW customer_report AS
-SELECT h.id, t.customer_id, s.name AS service_name, o.name AS order_name, t.cost AS sum, h.accounting_datetime as date
+SELECT h.id, t.customer_id, s.name AS service_name, o.name AS order_name, t.cost AS sum, h.status_transaction, h.accounting_datetime as date
 FROM history AS h
     JOIN transactions t ON t.id = h.transaction_id
     JOIN services s ON s.id = t.service_id

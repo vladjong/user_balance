@@ -110,7 +110,7 @@ func checkValue(value decimal.Decimal) error {
 }
 
 func checkServiceValue(serviceId, orderId int) error {
-	if serviceId == 4 || orderId == 4 {
+	if serviceId == serviceBalanceId || orderId == orderBalanceId {
 		return errors.New("error: this id does not support this method")
 	}
 	return nil
