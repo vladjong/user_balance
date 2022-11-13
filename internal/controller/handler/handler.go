@@ -23,13 +23,13 @@ func (h *handler) NewRouter() *gin.Engine {
 
 	api := router.Group("/api")
 	{
-		api.GET("/:id", h.GetCustomerBalance)
-		api.GET("/report/:date", h.GetHistoryReport)
-		api.GET("/history/:id/:date", h.GetCustomerReport)
-		api.POST("/:id/:val", h.PostCustomerBalance)
-		api.POST("/reserv/:id/:id_ser/:id_ord/:val", h.PostReserveCustomerBalance)
-		api.POST("/accept/:id/:id_ser/:id_ord/:val", h.PostDeReservingBalanceAccept)
-		api.POST("/reject/:id/:id_ser/:id_ord/:val", h.PostDeReservingBalanceReject)
+		api.GET("/:id", h.getCustomerBalance)
+		api.GET("/report/:date", h.getHistoryReport)
+		api.GET("/history/:id/:date", h.getCustomerReport)
+		api.POST("/:id/:val", h.postCustomerBalance)
+		api.POST("/reserv/:id/:id_ser/:id_ord/:val", h.postReserveCustomerBalance)
+		api.POST("/accept/:id/:id_ser/:id_ord/:val", h.postDeReservingBalanceAccept)
+		api.POST("/reject/:id/:id_ser/:id_ord/:val", h.postDeReservingBalanceReject)
 	}
 	return router
 }

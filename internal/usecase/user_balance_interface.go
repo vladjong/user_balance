@@ -7,6 +7,8 @@ import (
 	"github.com/vladjong/user_balance/internal/entities"
 )
 
+//go:generate mockgen -source=user_balance_interface.go -destination=mocks/mock.go
+
 type UserBalanse interface {
 	GetCustomerBalance(id int) (user entities.Customer, err error)
 	GetHistoryReport(date time.Time) (string, error)
