@@ -1,19 +1,13 @@
 package usecase
 
 import (
-	"errors"
 	"time"
 
 	"github.com/shopspring/decimal"
+	"github.com/vladjong/user_balance/config"
 	"github.com/vladjong/user_balance/internal/adapters/db"
 	"github.com/vladjong/user_balance/internal/entities"
 	"github.com/vladjong/user_balance/pkg/fileworker"
-)
-
-const (
-	dateFormat       = "2006-01"
-	serviceBalanceId = 4
-	orderBalanceId   = 4
 )
 
 type userBalanseUseCase struct {
@@ -33,17 +27,14 @@ func (u *userBalanseUseCase) GetCustomerBalance(id int) (user entities.Customer,
 }
 
 func (u *userBalanseUseCase) PostCustomerBalance(id int, value decimal.Decimal) error {
-	if err := checkValue(value); err != nil {
-		return err
-	}
 	customer := entities.Customer{
 		Id:      id,
 		Balance: value,
 	}
 	transaction := entities.Transaction{
 		CustomeId:           id,
-		ServiceID:           serviceBalanceId,
-		OrderID:             orderBalanceId,
+		ServiceID:           config.ServiceBalanceId,
+		OrderID:             config.OrderBalanceId,
 		Cost:                value,
 		TransactionDatiTime: time.Now(),
 	}
@@ -51,12 +42,6 @@ func (u *userBalanseUseCase) PostCustomerBalance(id int, value decimal.Decimal) 
 }
 
 func (u *userBalanseUseCase) PostReserveBalance(customerId, serviceId, orderId int, value decimal.Decimal) error {
-	if err := checkValue(value); err != nil {
-		return err
-	}
-	if err := checkServiceValue(serviceId, orderId); err != nil {
-		return err
-	}
 	transaction := entities.Transaction{
 		CustomeId:           customerId,
 		ServiceID:           serviceId,
@@ -68,12 +53,6 @@ func (u *userBalanseUseCase) PostReserveBalance(customerId, serviceId, orderId i
 }
 
 func (u *userBalanseUseCase) PostDeReservingBalance(customerId, serviceId, orderId int, value decimal.Decimal, status bool) error {
-	if err := checkValue(value); err != nil {
-		return err
-	}
-	if err := checkServiceValue(serviceId, orderId); err != nil {
-		return err
-	}
 	transaction := entities.Transaction{
 		CustomeId: customerId,
 		ServiceID: serviceId,
@@ -94,24 +73,10 @@ func (u *userBalanseUseCase) GetHistoryReport(date time.Time) (string, error) {
 		return "", nil
 	}
 	headers := []string{"id", "name", "all_sum"}
-	dateStr := date.Format(dateFormat)
+	dateStr := date.Format(config.DateFormat)
 	return u.fileworker.Record(report, headers, dateStr)
 }
 
 func (u *userBalanseUseCase) GetCustomerReport(id int, date time.Time) (report []entities.CustomerReport, err error) {
 	return u.storage.GetCustomerReport(id, date)
-}
-
-func checkValue(value decimal.Decimal) error {
-	if value.IsNegative() {
-		return errors.New("error: value is negative")
-	}
-	return nil
-}
-
-func checkServiceValue(serviceId, orderId int) error {
-	if serviceId == serviceBalanceId || orderId == orderBalanceId {
-		return errors.New("error: this id does not support this method")
-	}
-	return nil
 }

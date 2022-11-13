@@ -7,16 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
-)
-
-const (
-	dateFormat = "2006-01"
+	"github.com/vladjong/user_balance/config"
 )
 
 func (h *handler) GetCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
+		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
 		return
 	}
 	customer, err := h.userBalance.GetCustomerBalance(id)
@@ -30,12 +27,12 @@ func (h *handler) GetCustomerBalance(c *gin.Context) {
 func (h *handler) PostCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
+		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
 		return
 	}
 	value, err := decimal.NewFromString(c.Param("val"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer value param")
+	if err != nil || checkNegativeDecimal(value) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid customer value param")
 		return
 	}
 	err = h.userBalance.PostCustomerBalance(id, value)
@@ -51,12 +48,12 @@ func (h *handler) PostCustomerBalance(c *gin.Context) {
 func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
+		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
 		return
 	}
 	serviceId, err := strconv.Atoi(c.Param("id_ser"))
 	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid service id param")
+		NewErrorResponse(c, http.StatusBadRequest, "invalid service id param")
 		return
 	}
 	orderId, err := strconv.Atoi(c.Param("id_ord"))
@@ -65,7 +62,7 @@ func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 		return
 	}
 	value, err := decimal.NewFromString(c.Param("val"))
-	if err != nil {
+	if err != nil || checkNegativeDecimal(value) {
 		NewErrorResponse(c, http.StatusInternalServerError, "invalid value param")
 		return
 	}
@@ -82,22 +79,22 @@ func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 func (h *handler) PostDeReservingBalanceAccept(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
+		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
 		return
 	}
 	serviceId, err := strconv.Atoi(c.Param("id_ser"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid service id param")
+	if err != nil || checkIsBalanceServer(serviceId) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid service id param")
 		return
 	}
 	orderId, err := strconv.Atoi(c.Param("id_ord"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid store id param")
+	if err != nil || checkIsBalanceServer(orderId) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid store id param")
 		return
 	}
 	value, err := decimal.NewFromString(c.Param("val"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid value param")
+	if err != nil || checkNegativeDecimal(value) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid value param")
 		return
 	}
 	err = h.userBalance.PostDeReservingBalance(customerId, serviceId, orderId, value, true)
@@ -113,22 +110,22 @@ func (h *handler) PostDeReservingBalanceAccept(c *gin.Context) {
 func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid customer id param")
+		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
 		return
 	}
 	serviceId, err := strconv.Atoi(c.Param("id_ser"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid service id param")
+	if err != nil || checkIsBalanceServer(serviceId) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid service id param")
 		return
 	}
 	orderId, err := strconv.Atoi(c.Param("id_ord"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid store id param")
+	if err != nil || checkIsBalanceServer(orderId) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid store id param")
 		return
 	}
 	value, err := decimal.NewFromString(c.Param("val"))
-	if err != nil {
-		NewErrorResponse(c, http.StatusInternalServerError, "invalid value param")
+	if err != nil || checkNegativeDecimal(value) {
+		NewErrorResponse(c, http.StatusBadRequest, "invalid value param")
 		return
 	}
 	err = h.userBalance.PostDeReservingBalance(customerId, serviceId, orderId, value, false)
@@ -142,7 +139,7 @@ func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
 }
 
 func (h *handler) GetHistoryReport(c *gin.Context) {
-	date, err := time.Parse(dateFormat, c.Param("date"))
+	date, err := time.Parse(config.DateFormat, c.Param("date"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -156,7 +153,7 @@ func (h *handler) GetHistoryReport(c *gin.Context) {
 }
 
 func (h *handler) GetCustomerReport(c *gin.Context) {
-	date, err := time.Parse(dateFormat, c.Param("date"))
+	date, err := time.Parse(config.DateFormat, c.Param("date"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
