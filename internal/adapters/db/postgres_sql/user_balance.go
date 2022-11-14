@@ -37,7 +37,9 @@ func (d *userBalanceStorage) PostCustomerBalance(customer entities.Customer, tra
 				VALUES ($1, $2) ON CONFLICT (id)
 				DO UPDATE SET (id, balance) = (EXCLUDED.id, EXCLUDED.balance + customers.balance)`
 	if _, err := tx.Exec(query, customer.Id, customer.Balance); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	var id int
@@ -45,13 +47,17 @@ func (d *userBalanceStorage) PostCustomerBalance(customer entities.Customer, tra
 							VALUES ($1, $2, $3, $4, $5) RETURNING id`
 	row := tx.QueryRow(transactionQuery, transaction.CustomeId, transaction.ServiceID, transaction.OrderID, transaction.Cost, transaction.TransactionDatiTime)
 	if err := row.Scan(&id); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	historyQuery := `INSERT INTO history (transaction_id, accounting_datetime, status_transaction)
 						VALUES ($1, $2, $3)`
 	if _, err := tx.Exec(historyQuery, id, transaction.TransactionDatiTime, true); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	return tx.Commit()
@@ -84,14 +90,18 @@ func (d *userBalanceStorage) PostReserveBalance(transaction entities.Transaction
 	customer.Balance = customer.Balance.Sub(transaction.Cost)
 	updateCustomerBalance := `UPDATE customers SET balance = $1 WHERE id = $2`
 	if _, err := tx.Exec(updateCustomerBalance, customer.Balance, customer.Id); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	query := `INSERT INTO accounts (customer_id, balance)
 				VALUES ($1, $2) ON CONFLICT (customer_id)
 				DO UPDATE SET (customer_id, balance) = (EXCLUDED.customer_id, EXCLUDED.balance + accounts.balance)`
 	if _, err := tx.Exec(query, transaction.CustomeId, transaction.Cost); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	var id int
@@ -99,13 +109,17 @@ func (d *userBalanceStorage) PostReserveBalance(transaction entities.Transaction
 							VALUES ($1, $2, $3, $4, $5) RETURNING id`
 	row := tx.QueryRow(transactionQuery, transaction.CustomeId, transaction.ServiceID, transaction.OrderID, transaction.Cost, transaction.TransactionDatiTime)
 	if err := row.Scan(&id); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	expectTransactionQuery := `INSERT INTO expected_transactions (transaction_id) VALUES ($1)`
 	_, err = tx.Exec(expectTransactionQuery, id)
 	if err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	return tx.Commit()
@@ -130,23 +144,31 @@ func (d *userBalanceStorage) PostDeReservingBalance(transaction entities.Transac
 	history.TransactionId = id[0]
 	deleteTransactionQuery := `DELETE FROM expected_transactions WHERE transaction_id = $1`
 	if _, err := tx.Exec(deleteTransactionQuery, history.TransactionId); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	historyQuery := `INSERT INTO history (transaction_id, accounting_datetime, status_transaction) VALUES ($1, $2, $3)`
 	if _, err := tx.Exec(historyQuery, history.TransactionId, history.AccountingDatetime, history.StatusTransaction); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	updateAccountBalance := `UPDATE accounts SET balance = balance - $1 WHERE customer_id = $2`
 	if _, err := tx.Exec(updateAccountBalance, transaction.Cost, transaction.CustomeId); err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return rb
+		}
 		return err
 	}
 	if !history.StatusTransaction {
 		updateCustomerBalance := `UPDATE customers SET balance = balance + $1 WHERE id = $2`
 		if _, err := tx.Exec(updateCustomerBalance, transaction.Cost, transaction.CustomeId); err != nil {
-			tx.Rollback()
+			if rb := tx.Rollback(); rb != nil {
+				return rb
+			}
 			return err
 		}
 	}
