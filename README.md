@@ -58,6 +58,72 @@ make lint
 
 - `/swagger` - Swagger API
 
+### Post
+
+- `/:id/:val` Метод пополнения баланса пользователя
+
+Curl:
+```
+curl -X 'POST' \
+  'http://localhost:8080/api/1/1000' \
+  -H 'accept: application/json' \
+  -d ''
+```
+Response body:
+```
+{
+  "Status": "ok"
+}
+```
+
+- `/reserv/:id/:id_ser/:id_ord/:val` Метод резервирования средств с основного баланса на отдельном счете
+
+Curl:
+```
+curl -X 'POST' \
+  'http://localhost:8080/api/reserv/1/1/1/125' \
+  -H 'accept: application/json' \
+  -d ''
+```
+Response body:
+```
+{
+  "Status": "ok"
+}
+```
+
+- `/accept/:id/:id_ser/:id_ord/:val` Метод признания выручки - списывает из резерва деньги, добавляет данные в отче для бухгалтерии
+
+Curl:
+```
+curl -X 'POST' \
+  'http://localhost:8080/api/accept/1/1/1/125' \
+  -H 'accept: application/json' \
+  -d ''
+```
+Response body:
+```
+{
+  "Status": "ok"
+}
+```
+
+- `/accept/:id/:id_ser/:id_ord/:val` Метод разрезервирования денег - переводятся обратно на счет пользователя
+
+Curl:
+```
+curl -X 'POST' \
+  'http://localhost:8080/api/reject/1/1/1/125' \
+  -H 'accept: application/json' \
+  -d ''
+```
+Response body:
+```
+{
+  "Status": "ok"
+}
+```
+
 ### Get
 
 - `/:id` Метод получения баланса пользователя
@@ -137,72 +203,6 @@ Response body:
     "date": "2022-11-14T13:05:52.131081Z"
   },
 ]
-```
-
-### Post
-
-- `/:id/:val` Метод пополнения баланса пользователя
-
-Curl:
-```
-curl -X 'POST' \
-  'http://localhost:8080/api/1/1000' \
-  -H 'accept: application/json' \
-  -d ''
-```
-Response body:
-```
-{
-  "Status": "ok"
-}
-```
-
-- `/reserv/:id/:id_ser/:id_ord/:val` Метод резервирования средств с основного баланса на отдельном счете
-
-Curl:
-```
-curl -X 'POST' \
-  'http://localhost:8080/api/reserv/1/1/1/125' \
-  -H 'accept: application/json' \
-  -d ''
-```
-Response body:
-```
-{
-  "Status": "ok"
-}
-```
-
-- `/accept/:id/:id_ser/:id_ord/:val` Метод признания выручки - списывает из резерва деньги, добавляет данные в отче для бухгалтерии
-
-Curl:
-```
-curl -X 'POST' \
-  'http://localhost:8080/api/accept/1/1/1/125' \
-  -H 'accept: application/json' \
-  -d ''
-```
-Response body:
-```
-{
-  "Status": "ok"
-}
-```
-
-- `/accept/:id/:id_ser/:id_ord/:val` Метод разрезервирования денег - переводятся обратно на счет пользователя
-
-Curl:
-```
-curl -X 'POST' \
-  'http://localhost:8080/api/reject/1/1/1/125' \
-  -H 'accept: application/json' \
-  -d ''
-```
-Response body:
-```
-{
-  "Status": "ok"
-}
 ```
 
 ### Кейс 1: Совершение транзакции на сумму большей чем баланс клиента
