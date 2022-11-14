@@ -2,8 +2,19 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/vladjong/user_balance/docs"
 	"github.com/vladjong/user_balance/internal/usecase"
 )
+
+// @title UserBalance API
+// @version 1.0
+// @description This is a service that work with the user's balance
+
+// @host      localhost:8080
+// @BasePath  /api
 
 type handler struct {
 	userBalance usecase.UserBalanse
@@ -18,8 +29,7 @@ func New(userBalance usecase.UserBalanse) *handler {
 func (h *handler) NewRouter() *gin.Engine {
 	router := gin.New()
 
-	//swager
-	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
 	{

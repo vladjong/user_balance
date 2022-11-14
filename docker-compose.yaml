@@ -1,0 +1,32 @@
+version: "3.9"
+
+networks:
+  dev-network:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:latest
+    container_name: db
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./migrations/000001_init.up.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    networks:
+      - dev-network
+
+  weather_api:
+    container_name: user_balance
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    restart: always
+    networks:
+      - dev-network
+    depends_on:
+      - db

@@ -1,0 +1,325 @@
+basePath: /api
+definitions:
+  entities.Customer:
+    properties:
+      balance:
+        type: number
+      id:
+        type: integer
+    type: object
+  entities.CustomerReport:
+    properties:
+      date:
+        type: string
+      id:
+        type: integer
+      order_name:
+        type: string
+      service_name:
+        type: string
+      status_transaction:
+        type: boolean
+      sum:
+        type: number
+    type: object
+  handler.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a service that work with the user's balance
+  title: UserBalance API
+  version: "1.0"
+paths:
+  /{id}:
+    get:
+      consumes:
+      - application/json
+      description: get by INT id
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Customer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get Customer balance
+      tags:
+      - customer
+  /{id}/{val}:
+    post:
+      consumes:
+      - application/json
+      description: post by INT id
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Value
+        in: path
+        name: val
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Post Customer balance
+      tags:
+      - customer
+  /accept/{id}/{id_ser}/{id_ord}/{val}:
+    post:
+      consumes:
+      - application/json
+      description: post by INT id, id_service, id_order and Decimal value
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Service ID
+        in: path
+        name: id_ser
+        required: true
+        type: integer
+      - description: Order ID
+        in: path
+        name: id_ord
+        required: true
+        type: integer
+      - description: Value
+        in: path
+        name: val
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Post Dereserving balance ACCEPT
+      tags:
+      - customer
+  /history/{id}/{date}:
+    get:
+      consumes:
+      - application/json
+      description: get INT by ID and DATE (YYYY-MM)
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Date
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.CustomerReport'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get Customer report
+      tags:
+      - customer
+  /reject/{id}/{id_ser}/{id_ord}/{val}:
+    post:
+      consumes:
+      - application/json
+      description: post by INT id, id_service, id_order and Decimal value
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Service ID
+        in: path
+        name: id_ser
+        required: true
+        type: integer
+      - description: Order ID
+        in: path
+        name: id_ord
+        required: true
+        type: integer
+      - description: Value
+        in: path
+        name: val
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Post Dereserving balance REJECT
+      tags:
+      - customer
+  /report/{date}:
+    get:
+      consumes:
+      - application/json
+      description: get by DATE (YYYY-MM)
+      parameters:
+      - description: Date
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Filename
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get History report
+      tags:
+      - accounting
+  /reserv/{id}/{id_ser}/{id_ord}/{val}:
+    post:
+      consumes:
+      - application/json
+      description: post by INT id, id_service, id_order and Decimal value
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Service ID
+        in: path
+        name: id_ser
+        required: true
+        type: integer
+      - description: Order ID
+        in: path
+        name: id_ord
+        required: true
+        type: integer
+      - description: Value
+        in: path
+        name: val
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Post Reserving balance
+      tags:
+      - customer
+swagger: "2.0"

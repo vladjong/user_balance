@@ -11,6 +11,17 @@ import (
 	"github.com/vladjong/user_balance/config"
 )
 
+// @Summary Get Customer balance
+// @Tags customer
+// @Description get by INT id
+// @Accept  json
+// @Produce  json
+// @Param        id   path      int  true  "Customer ID"
+// @Success 200 {object} entities.Customer
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /{id} [get]
 func (h *handler) GetCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -25,6 +36,18 @@ func (h *handler) GetCustomerBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
+// @Summary Post Customer balance
+// @Tags customer
+// @Description post by INT id
+// @Accept  json
+// @Produce  json
+// @Param        id   path      int  true  "Customer ID"
+// @Param        val   path      string  true  "Value"
+// @Success 200 {string} string "Status"
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /{id}/{val} [post]
 func (h *handler) PostCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -46,6 +69,20 @@ func (h *handler) PostCustomerBalance(c *gin.Context) {
 	})
 }
 
+// @Summary Post Reserving balance
+// @Tags customer
+// @Description post by INT id, id_service, id_order and Decimal value
+// @Accept  json
+// @Produce  json
+// @Param        id   path      int  true  "Customer ID"
+// @Param        id_ser   path      int  true  "Service ID"
+// @Param        id_ord   path      int  true  "Order ID"
+// @Param        val   path      string  true  "Value"
+// @Success 200 {string} string "Status"
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /reserv/{id}/{id_ser}/{id_ord}/{val} [post]
 func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -77,6 +114,20 @@ func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 	})
 }
 
+// @Summary Post Dereserving balance ACCEPT
+// @Tags customer
+// @Description post by INT id, id_service, id_order and Decimal value
+// @Accept  json
+// @Produce  json
+// @Param        id   path      int  true  "Customer ID"
+// @Param        id_ser   path      int  true  "Service ID"
+// @Param        id_ord   path      int  true  "Order ID"
+// @Param        val   path      string  true  "Value"
+// @Success 200 {string} string "Status"
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /accept/{id}/{id_ser}/{id_ord}/{val} [post]
 func (h *handler) PostDeReservingBalanceAccept(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -108,6 +159,20 @@ func (h *handler) PostDeReservingBalanceAccept(c *gin.Context) {
 	})
 }
 
+// @Summary Post Dereserving balance REJECT
+// @Tags customer
+// @Description post by INT id, id_service, id_order and Decimal value
+// @Accept  json
+// @Produce  json
+// @Param        id   path      int  true  "Customer ID"
+// @Param        id_ser   path      int  true  "Service ID"
+// @Param        id_ord   path      int  true  "Order ID"
+// @Param        val   path      string  true  "Value"
+// @Success 200 {string} string "Status"
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /reject/{id}/{id_ser}/{id_ord}/{val} [post]
 func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -139,6 +204,17 @@ func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
 	})
 }
 
+// @Summary Get History report
+// @Tags accounting
+// @Description get by DATE (YYYY-MM)
+// @Accept  json
+// @Produce  json
+// @Param        date   path      string  true  "Date"
+// @Success 200 {string} string "Filename"
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /report/{date} [get]
 func (h *handler) GetHistoryReport(c *gin.Context) {
 	date, err := time.Parse(config.DateFormat, c.Param("date"))
 	if err != nil {
@@ -150,9 +226,23 @@ func (h *handler) GetHistoryReport(c *gin.Context) {
 		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.String(http.StatusOK, filename)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"Filename": filename,
+	})
 }
 
+// @Summary Get Customer report
+// @Tags customer
+// @Description get INT by ID and DATE (YYYY-MM)
+// @Accept  json
+// @Produce  json
+// @Param        id   path      int  true  "Customer ID"
+// @Param        date   path      string  true  "Date"
+// @Success 200 {object} []entities.CustomerReport
+// @Failure 400 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /history/{id}/{date} [get]
 func (h *handler) GetCustomerReport(c *gin.Context) {
 	date, err := time.Parse(config.DateFormat, c.Param("date"))
 	if err != nil {

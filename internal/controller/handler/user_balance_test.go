@@ -83,7 +83,7 @@ func TestHandler_getHistoryReport(t *testing.T) {
 				s.EXPECT().GetHistoryReport(date).Return("report_2022-01", nil)
 			},
 			expectedStatusCode:  200,
-			expectedRequestBody: `report_2022-01`,
+			expectedRequestBody: `{"Filename":"report_2022-01"}`,
 		},
 		{
 			name:  "Status bad request",

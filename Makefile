@@ -7,7 +7,7 @@ SMARTIMPORTS=${BINDIR}/smartimports_${GOVER}
 LINTVER=v1.49.0
 LINTBIN=${BINDIR}/lint_${GOVER}_${LINTVER}
 
-all: build
+all: docker-run
 
 build: clean $(APP_BIN)
 
