@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -69,6 +70,10 @@ func (u *userBalanseUseCase) PostDeReservingBalance(customerId, serviceId, order
 
 func (u *userBalanseUseCase) GetHistoryReport(date time.Time) (string, error) {
 	report, err := u.storage.GetHistoryReport(date)
+	if len(report) == 0 {
+		empty := fmt.Sprintf("don't have history report in %s", date.String())
+		return empty, nil
+	}
 	if err != nil {
 		return "", nil
 	}

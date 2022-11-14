@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,7 +11,7 @@ import (
 	"github.com/vladjong/user_balance/config"
 )
 
-func (h *handler) getCustomerBalance(c *gin.Context) {
+func (h *handler) GetCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
@@ -24,7 +25,7 @@ func (h *handler) getCustomerBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
-func (h *handler) postCustomerBalance(c *gin.Context) {
+func (h *handler) PostCustomerBalance(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
@@ -45,7 +46,7 @@ func (h *handler) postCustomerBalance(c *gin.Context) {
 	})
 }
 
-func (h *handler) postReserveCustomerBalance(c *gin.Context) {
+func (h *handler) PostReserveCustomerBalance(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
@@ -76,7 +77,7 @@ func (h *handler) postReserveCustomerBalance(c *gin.Context) {
 	})
 }
 
-func (h *handler) postDeReservingBalanceAccept(c *gin.Context) {
+func (h *handler) PostDeReservingBalanceAccept(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
@@ -107,7 +108,7 @@ func (h *handler) postDeReservingBalanceAccept(c *gin.Context) {
 	})
 }
 
-func (h *handler) postDeReservingBalanceReject(c *gin.Context) {
+func (h *handler) PostDeReservingBalanceReject(c *gin.Context) {
 	customerId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, "invalid customer id param")
@@ -138,7 +139,7 @@ func (h *handler) postDeReservingBalanceReject(c *gin.Context) {
 	})
 }
 
-func (h *handler) getHistoryReport(c *gin.Context) {
+func (h *handler) GetHistoryReport(c *gin.Context) {
 	date, err := time.Parse(config.DateFormat, c.Param("date"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -152,7 +153,7 @@ func (h *handler) getHistoryReport(c *gin.Context) {
 	c.String(http.StatusOK, filename)
 }
 
-func (h *handler) getCustomerReport(c *gin.Context) {
+func (h *handler) GetCustomerReport(c *gin.Context) {
 	date, err := time.Parse(config.DateFormat, c.Param("date"))
 	if err != nil {
 		NewErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -166,6 +167,11 @@ func (h *handler) getCustomerReport(c *gin.Context) {
 	report, err := h.userBalance.GetCustomerReport(id, date)
 	if err != nil {
 		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if report == nil {
+		empty := fmt.Sprintf("user id:%d don't have customer history in %s", id, date.String())
+		c.String(http.StatusOK, empty)
 		return
 	}
 	c.JSON(http.StatusOK, report)

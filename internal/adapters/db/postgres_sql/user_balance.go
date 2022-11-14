@@ -161,9 +161,6 @@ func (d *userBalanceStorage) GetHistoryReport(date time.Time) (report []entities
 	if err := d.db.Select(&report, query, date); err != nil {
 		return report, err
 	}
-	if len(report) == 0 {
-		return report, errors.New("error: history report empty")
-	}
 	return report, nil
 }
 
@@ -176,9 +173,6 @@ func (d *userBalanceStorage) GetCustomerReport(id int, date time.Time) (report [
 				ORDER BY date DESC, sum DESC`
 	if err := d.db.Select(&report, query, date, id); err != nil {
 		return report, err
-	}
-	if len(report) == 0 {
-		return report, errors.New("error: customer history report empty")
 	}
 	return report, nil
 }
