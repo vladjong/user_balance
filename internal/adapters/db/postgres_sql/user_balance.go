@@ -2,6 +2,7 @@ package postgressql
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -195,6 +196,10 @@ func (d *userBalanceStorage) GetCustomerReport(id int, date time.Time) (report [
 				ORDER BY date DESC, sum DESC`
 	if err := d.db.Select(&report, query, date, id); err != nil {
 		return report, err
+	}
+	if report == nil {
+		empty := fmt.Sprintf("don't have customer id: %d history report in %s", id, date.String())
+		return nil, errors.New(empty)
 	}
 	return report, nil
 }

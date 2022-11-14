@@ -1,3 +1,4 @@
+![poster](resourcer/poster.png)
 # Use_balance_API
 
 ## Описание
@@ -18,7 +19,7 @@
 
 - [x] Основной функционал работы с пользователем
 - [x] Покрыт код тестами
-- [x] Swagger [swagger]()
+- [x] Swagger [swagger](http://localhost:8080/swagger/index.html#)
 - [x] Дополнительный функционал (Доп 1, Доп 2)
 
 ## Запуск
@@ -204,9 +205,86 @@ Response body:
 }
 ```
 
-## Диаграмма БД:
+### Кейс 1: Совершение транзакции на сумму большей чем баланс клиента
 
-![poster](resourcer/db.png)
+Curl:
+```
+curl -X 'POST' \
+  'http://localhost:8080/api/reserv/1/1/1/10000' \
+  -H 'accept: application/json' \
+  -d ''
+```
+Response body:
+```
+{
+  "message": "error: customer balance less than transaction cost"
+}
+```
+
+### Кейс 2: Одобрение не существующей транзакции клиента
+
+Curl:
+```
+curl -X 'POST' \
+  'http://localhost:8080/api/accept/1/1/1/10' \
+  -H 'accept: application/json' \
+  -d ''
+```
+Response body:
+```
+{
+  "message": "error: this id don't exist"
+}
+```
+
+### Кейс 3: Узнать баланс не существующего клиента
+
+Curl:
+```
+curl -X 'GET' \
+  'http://localhost:8080/api/5' \
+  -H 'accept: application/json'
+```
+Response body:
+```
+{
+  "message": "error: id don't exist"
+}
+```
+
+### Кейс 4: Экспорт отчета в котором не было транзакции в определенный период
+
+Curl:
+```
+curl -X 'GET' \
+  'http://localhost:8080/api/report/2021-01' \
+  -H 'accept: application/json'
+```
+Response body:
+```
+{
+  "message": "don't have history report in 2021-01-01 00:00:00 +0000 UTC"
+}
+```
+
+### Кейс 5: История клиента в котором не было транзакции в определенный период
+
+Curl:
+```
+curl -X 'GET' \
+  'http://localhost:8080/api/history/1/2021-01' \
+  -H 'accept: application/json'
+```
+Response body:
+```
+{
+  "message": "don't have customer id: 1 history report in 2021-01-01 00:00:00 +0000 UTC"
+}
+```
+
+## Диаграмма БД
+
+![db](resourcer/db.png)
 
 ### Таблица Customers
 | **Поле**                    | **Название поля в системе** | **Описание**
@@ -274,3 +352,21 @@ Response body:
 | Cумма   | sum | Сумма транзакции |
 | Статус транзакции   | status_transaction | Время пременения транзакции |
 | Дата применение транзакции   | date | |
+
+#### Для тестирования таблицы Services и Orderes заполняются тестовыми данными
+
+### Таблица Services
+| **id**  | **name** |
+|:-------:|:--------:|
+| 1      | Упаковка       |
+| 2      | Доставка     |
+| 3      | Консультация     |
+| 4      | Пополнение     |
+
+### Таблица Orders
+| **id**  | **name** |
+|:-------:|:--------:|
+| 1      | A1       |
+| 2      | A2     |
+| 3      | A3     |
+| 4      | Баланс     |

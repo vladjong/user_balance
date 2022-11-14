@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -72,7 +73,7 @@ func (u *userBalanseUseCase) GetHistoryReport(date time.Time) (string, error) {
 	report, err := u.storage.GetHistoryReport(date)
 	if report == nil {
 		empty := fmt.Sprintf("don't have history report in %s", date.String())
-		return empty, nil
+		return "", errors.New(empty)
 	}
 	if err != nil {
 		return "", nil
